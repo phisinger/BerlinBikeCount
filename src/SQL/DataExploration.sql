@@ -129,14 +129,14 @@ order By MONTH
 -- compare the two directions of every point with two stations
 -- First some data cleaning
 Update data_location$ 
-Set [Beschreibung - Fahrtrichtung]='Yorckstraße West'
+Set [Beschreibung - Fahrtrichtung]='Yorckstraï¿½e West'
 Where Zaehlstelle = 'yorw';
 
 Select [Beschreibung - Fahrtrichtung], AVG(cyclists) as 'AVG #cyclists'
 From #temp_all_years years Join (
 Select Zaehlstelle, [Beschreibung - Fahrtrichtung]
 From data_location$ 
-Where [Beschreibung - Fahrtrichtung] Like '%Süd' 
+Where [Beschreibung - Fahrtrichtung] Like '%Sï¿½d' 
 	OR [Beschreibung - Fahrtrichtung] Like '%Nord'
 	OR [Beschreibung - Fahrtrichtung] Like '%West'
 	OR [Beschreibung - Fahrtrichtung] Like '%Ost'
@@ -171,7 +171,7 @@ From (
 Select *, 
 Case
 	When [Beschreibung - Fahrtrichtung] like '% Nord' then 'North'
-	When [Beschreibung - Fahrtrichtung] like '% Süd' then 'South'
+	When [Beschreibung - Fahrtrichtung] like '% Sï¿½d' then 'South'
 	When [Beschreibung - Fahrtrichtung] like '% West' then 'West'
 	When [Beschreibung - Fahrtrichtung] like '% Ost' then 'East'
 	Else 'no direction'
@@ -204,3 +204,5 @@ Case
 End as weekday
 From #temp_all_years) weekdays
 Group By weekday;
+
+-- When do the most errors occur?
