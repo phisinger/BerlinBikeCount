@@ -159,6 +159,7 @@ Select DateTime, station, cyclists, Sum(cyclists) Over ( Partition by (CAST(DATE
 	Order by DateTime
 	ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as 'Count cycists'
 From data_2020$
+-- where station = 'obw'
 Order by DateTime;
 
 
@@ -206,3 +207,19 @@ From #temp_all_years) weekdays
 Group By weekday;
 
 -- When do the most errors occur?
+Select DATEPART(MONTH, Datetime) as MONTH, count(cyclists) as error_num
+From #temp_all_years
+Where cyclists = -1
+Group By DATEPART(MONTH, Datetime)
+Order By error_num DESC;
+
+-- At which Station do most errors occur?
+-- I divide the total errors at each station by the number of months it is running to get a comparible result. As the stations started their service at different dates.
+With #errors_station as (
+	Select distinct l.[Beschreibung - Fahrtrichtung], l.Installationsdatum, count(cyclists) Over (Partition By l.[Beschreibung - Fahrtrichtung]) as error_num
+	From #temp_all_years d Join data_location$ l
+	On d.station = l.Zaehlstelle
+	where d.cyclists = -1)
+Select [Beschreibung - Fahrtrichtung], error_num as total_errors,  Round(Cast(error_num as float)/Cast(DATEDIFF(MONTH, installationsdatum, CAST('31/12/2020' as date)) as float), 3) as errors_per_month
+From #errors_station
+Order By errors_per_month DESC;
