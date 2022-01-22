@@ -20,3 +20,5 @@ In this part I explore the data arbitrarily. I try to find interesting views, es
 ## 3. Data Visualization
 
 I use the generated views in Tableau to visualize interesting results. Find my interactive Tableau Dashboard [here](https://public.tableau.com/app/profile/philip.singer/viz/BerlinBikeCount/Dashboard1). I will add more dashboards over time. But these visualizations are the most important ones in my opinion.
+
+## 4. Forecasting
