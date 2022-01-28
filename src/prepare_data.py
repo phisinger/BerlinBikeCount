@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 data_location = pd.read_excel(
     "../data/radzaehlung_berlin.xlsx", sheet_name="Standortdaten", engine="openpyxl")
@@ -20,6 +21,7 @@ data_2019 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2019", engine="openpyxl")
 data_2020 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2020", engine="openpyxl")
+print("Reading data in done")
 
 counting_tables = [data_2012,
                    data_2013,
@@ -62,38 +64,48 @@ columns_dict = {"12-PA-SCH": "schw",
                 "06-FK-FRA-O": "frao",
                 "06-FK-FRA-W": "fraw"}
 
-# %% [markdown]
 # We change columns and rows: After the transformation, we have a column with station names, and a column with corresponding number of cyclists at this point in time (DateTime column). This tranformation is made by the `table.melt` command.
 # Moreover we change station abbrevations according to the dectionairy defined in previous cell.
 
-# %%
-output_tables = []
+input_tables = []
 for table in counting_tables:
     table.rename(columns=columns_dict, inplace=True)
     temp_table = table.melt(
         id_vars='DateTime', value_name="cyclists", var_name="station")
     # print(temp_table)
-    output_tables.append(temp_table.dropna(subset=['DateTime']))
+    input_tables.append(temp_table.dropna(subset=['DateTime']))
+
+print("Transforming table done")
 
 
 data_location.replace({"Zaehlstelle": columns_dict}, inplace=True)
 
-# combine all output_tables with a union to one big data set
-data = pd.concat(output_tables, ignore_index=True)
+# combine all input_tables with a union to one big data set
+data = pd.concat(input_tables, ignore_index=True)
+print("Merging done")
 
 # drop duplicate rows
 data = data.drop_duplicates(
     subset=["DateTime", "station"], keep='last', ignore_index=True)
 
 # drop all rows with error or null values
-data_clean = data
+data_clean = data.copy()
 data_clean.loc[data.cyclists == -1, 'cyclists'] = np.nan
 data_clean.dropna(inplace=True)
-
-# calculate sum of cyclists per day
-# split in day, month, year, station
-# then recompile everything back
+print("Dropping error and nulls done")
 
 # split dataset by station name
+station_list = data_clean["station"].unique().tolist()
+data_resample_dict = {}
+for station_name in station_list:
+    # calculate sum of cyclists per day
+    data_resample = data_clean.loc[data_clean["station"] == station_name].resample(
+        'D', on='DateTime').mean()
+    data_resample_dict.update({station_name: data_resample})
+print("splitting and resampling done")
 
-# save data with pickle or csv
+# save data to csv
+for station_name in station_list:
+    data_resample_dict[station_name].to_csv(
+        path_or_buf="../data/prepared-data/" + station_name + "_data.csv", index=False)
+print("Saving data done")
