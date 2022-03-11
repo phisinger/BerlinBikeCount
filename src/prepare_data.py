@@ -1,25 +1,28 @@
 import pandas as pd
 import numpy as np
+import os
+
+# import data from excel files
 
 data_location = pd.read_excel(
-    "../data/radzaehlung_berlin.xlsx", sheet_name="Standortdaten", engine="openpyxl")
-data_2012 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+    "data/radzaehlung_berlin.xlsx", sheet_name="Standortdaten", engine="openpyxl")
+data_2012 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2012", engine="openpyxl")
-data_2013 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2013 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2013", engine="openpyxl")
-data_2014 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2014 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2014", engine="openpyxl")
-data_2015 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2015 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2015", engine="openpyxl")
-data_2016 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2016 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2016", engine="openpyxl")
-data_2017 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2017 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2017", engine="openpyxl")
-data_2018 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2018 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2018", engine="openpyxl")
-data_2019 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2019 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2019", engine="openpyxl")
-data_2020 = pd.read_excel("../data/radzaehlung_berlin.xlsx",
+data_2020 = pd.read_excel("data/radzaehlung_berlin.xlsx",
                           sheet_name="Jahresdatei 2020", engine="openpyxl")
 print("Reading data in done")
 
@@ -64,21 +67,29 @@ columns_dict = {"12-PA-SCH": "schw",
                 "06-FK-FRA-O": "frao",
                 "06-FK-FRA-W": "fraw"}
 
-# We change columns and rows: After the transformation, we have a column with station names, and a column with corresponding number of cyclists at this point in time (DateTime column). This tranformation is made by the `table.melt` command.
-# Moreover we change station abbrevations according to the dectionairy defined in previous cell.
+# We change columns and rows: After the transformation, we have a column with station names,
+# and a column with corresponding number of cyclists at this point in time (DateTime column).
+# This transformation is made by the `table.melt` command.
+# Moreover we change station abbreviations according to the dictionairy defined in previous cell.
+
 
 input_tables = []
 for table in counting_tables:
     table.rename(columns=columns_dict, inplace=True)
     temp_table = table.melt(
         id_vars='DateTime', value_name="cyclists", var_name="station")
+    # Next, we change column names. This is important, as the Prophet model only accepts column names "ds" and "y".
+    temp_table.rename(
+        columns={"DateTime": "ds", "cyclists": "y"}, inplace=True)
     # print(temp_table)
-    input_tables.append(temp_table.dropna(subset=['DateTime']))
+    input_tables.append(temp_table.dropna(subset=['ds']))
+
+
+# Rename stations also in the locations table
+data_location.replace({"Zaehlstelle": columns_dict}, inplace=True)
 
 print("Transforming table done")
 
-
-data_location.replace({"Zaehlstelle": columns_dict}, inplace=True)
 
 # combine all input_tables with a union to one big data set
 data = pd.concat(input_tables, ignore_index=True)
@@ -86,11 +97,11 @@ print("Merging done")
 
 # drop duplicate rows
 data = data.drop_duplicates(
-    subset=["DateTime", "station"], keep='last', ignore_index=True)
+    subset=["ds", "station"], keep='last', ignore_index=True)
 
 # drop all rows with error or null values
 data_clean = data.copy()
-data_clean.loc[data.cyclists == -1, 'cyclists'] = np.nan
+data_clean.loc[data.y == -1, 'y'] = np.nan
 data_clean.dropna(inplace=True)
 print("Dropping error and nulls done")
 
@@ -100,12 +111,14 @@ data_resample_dict = {}
 for station_name in station_list:
     # calculate sum of cyclists per day
     data_resample = data_clean.loc[data_clean["station"] == station_name].resample(
-        'D', on='DateTime').mean()
+        'D', on='ds').sum()
     data_resample_dict.update({station_name: data_resample})
 print("splitting and resampling done")
 
 # save data to csv
 for station_name in station_list:
     data_resample_dict[station_name].to_csv(
-        path_or_buf="../data/prepared-data/" + station_name + "_data.csv", index=False)
+        path_or_buf="data/prepared-data/" + station_name + "_data.csv")
+data_location.to_csv(
+    path_or_buf="data/prepared-data/location_data.csv", index=False)
 print("Saving data done")
