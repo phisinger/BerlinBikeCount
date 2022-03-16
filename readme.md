@@ -1,13 +1,16 @@
-# Berlin Bike Count Analysis
+# Berlin Bike Count Analysis and Forecast
 
 ![bike image by Cristiana Raluca from Pexels](./data/github_image/bike.jpg)
 
-In this project I analyze data from the last eight years: Since 2012 sensor stations track passing cyclists at different locations. Data includes hourly measurements augmented with geographic information about the stations (coordinates and directions). You'll find the data [here (german)](https://www.berlin.de/sen/uvk/verkehr/verkehrsplanung/radverkehr/weitere-radinfrastruktur/zaehlstellen-und-fahrradbarometer/).  
-This project contains three steps
+In this project I analyze and forecast data from the last eight years: Since 2012 sensor stations track passing cyclists at different locations. Data includes hourly measurements augmented with geographic information about the stations (coordinates and directions). You'll find the original data [here (German)](https://www.berlin.de/sen/uvk/verkehr/verkehrsplanung/radverkehr/weitere-radinfrastruktur/zaehlstellen-und-fahrradbarometer/). I uploaded the data with minimal preprocessing on [Kaggle](https://www.kaggle.com/phisinger/bike-counting-berlin).
+
+This project contains five steps
 
 1. Data cleaning - There are missing values and error values
 2. Data exploration in SQL - Get some insights and generate interesting views
 3. Data visualization with Tableau - Let's make it pretty
+4. Forecasting - See into the future
+5. Presenting Forecast - Ease Access with a website
 
 ## 1. Data Cleaning
 
@@ -19,8 +22,17 @@ In this part I explore the data arbitrarily. I try to find interesting views, es
 
 ## 3. Data Visualization
 
-I use the generated views in Tableau to visualize interesting results. Find my interactive Tableau Dashboard [here](https://public.tableau.com/app/profile/philip.singer/viz/BerlinBikeCount/Dashboard1). I will add more dashboards over time. But these visualizations are the most important ones in my opinion.
+I use the generated views in Tableau to visualize interesting results. Find my interactive Tableau Dashboard [here](https://public.tableau.com/app/profile/philip.singer/viz/BerlinBikeCount/Dashboard1). Of course you think of many more charts. But these visualizations are the most important ones in my opinion.
 
 ## 4. Forecasting
 
-## 5. Presenting
+First, I clean the data further in this [notebook](src/Forecasting_notebook.ipynb). My first idea was not to forecast the cyclists in a classical way but using a regression model to predict the data. Therefore I make some feature engineering. I add weekday-classification, holidays and seasons. But the performance of the gradient boosted tree was not satisfying. Because of this I tried a real forecasting model for the first time. As I had not have much experience in forecasting time series, I used Meta's prophet algorithm which has a scikit-learn-like API.  
+To make the Prophet model more explainable, I calculated shapley values with the `shap` library.
+
+## 5. Presenting Forecast
+
+To ease the access to the forecasted data, I created a website. To operationalize the provisioning process from the excel sheet to the prediction I decided to make real python scripts next to the notebooks. See in the [src](src) folder. You'll find the web app I built with `streamlit` under this [link](https://share.streamlit.io/phisinger/berlinbikecount-website/src/streamlit_app.py). It is built completely in Python. You find the code [here](src/streamlit_app.py). I deployed it on the streamlit.io share.
+
+---
+
+I hope you like this project. I'm looking forward to hear your thoughts about this project. Feel free to follow and write me on [Linkedin](https://www.linkedin.com/in/philip-jonathan-singer/).

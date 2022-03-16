@@ -10,9 +10,6 @@ CREATE TABLE temp_all_years (
 station varchar(255),
 cyclists float
 );
-
-
-
 Insert into temp_all_years
 Select * From data_2012$
 Union 
@@ -33,7 +30,7 @@ Union
 Select * From data_2019$
 Union 
 Select * From data_2020$;
-
+-- delete all null entries
 Delete From temp_all_years
 Where cyclists is null;
 

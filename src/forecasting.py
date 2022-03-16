@@ -17,7 +17,7 @@ print("read in data done")
 
 # In the following for loop, the following 3 steps are made for every station:
 # 1. train model
-# 2. predict next 5 years
+# 2. predict next 4 years
 # 3. save the predicted values
 
 predicted_data_dict = {}
@@ -28,7 +28,7 @@ for station_name in station_list:
 
     # building array for prediction
     future_dates = pd.date_range(
-        '2021-01-01', periods=(265*5), freq='D').to_frame(name="ds")
+        '2021-01-01', periods=(365*4), freq='D').to_frame(name="ds")
     print(future_dates.head())
 
     # predict the cyclists for the next years and collect all forecasts in this dict for further processing
