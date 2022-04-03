@@ -2,7 +2,8 @@
 
 ![bike image by Cristiana Raluca from Pexels](./data/github_image/bike.jpg)
 
-In this project I analyze and forecast data from the last eight years: Since 2012 sensor stations track passing cyclists at different locations. Data includes hourly measurements augmented with geographic information about the stations (coordinates and directions). You'll find the original data [here (German)](https://www.berlin.de/sen/uvk/verkehr/verkehrsplanung/radverkehr/weitere-radinfrastruktur/zaehlstellen-und-fahrradbarometer/). I uploaded the data with minimal preprocessing on [Kaggle](https://www.kaggle.com/phisinger/bike-counting-berlin).
+In this project I analyze and forecast data from the last eight years: Since 2012 sensor stations track passing cyclists at different locations. Data includes hourly measurements augmented with geographic information about the stations (coordinates and directions). You'll find the original data [here (German)](https://www.berlin.de/sen/uvk/verkehr/verkehrsplanung/radverkehr/weitere-radinfrastruktur/zaehlstellen-und-fahrradbarometer/). I uploaded the data with minimal preprocessing on [Kaggle](https://www.kaggle.com/phisinger/bike-counting-berlin).  
+The storyline behind this project is the following: If a city department for traffic is planing a construction site they can use the analysis and forecast to identify weeks/months when there is little bicycle traffic. For this reason, the daily forecast is sufficient.
 
 This project contains five steps
 
